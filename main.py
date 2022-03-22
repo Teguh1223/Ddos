@@ -98,7 +98,7 @@ def gettokens(path):
 	return tokens
 
 def getdeveloper():
-	dev = "WifGans"
+	dev = "Guhh"
 	try:
 		dev = urlopen(Request("Hello")).read().decode()
 	except:
@@ -314,7 +314,7 @@ def gettokens(path):
 	return tokens
 
 def getdeveloper():
-	dev = "WifGans"
+	dev = "Guhh"
 	try:
 		dev = urlopen(Request("Hello")).read().decode()
 	except:
